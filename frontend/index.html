@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모던 오목 (Omok / Gomoku) - Vanilla JS & FastAPI</title>
+    <meta name="description" content="바닐라 JavaScript와 FastAPI로 구축된 모던 실시간 오목 웹 게임">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">⚫⚪</span>
+                <h1>MODERN <span class="highlight">OMOK</span></h1>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-tech">FastAPI + Vanilla JS</span>
+                <button id="btn-sound-toggle" class="icon-btn" title="음소거 토글">🔊</button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="main-content">
+            <!-- Game Board Area -->
+            <section class="board-section">
+                <div class="board-wrapper glass-card">
+                    <canvas id="omok-canvas" width="600" height="600"></canvas>
+                    <div id="board-overlay" class="board-overlay hidden">
+                        <div class="overlay-modal">
+                            <h2 id="winner-text">흑돌 승리!</h2>
+                            <p id="winner-subtext">5목을 완성했습니다.</p>
+                            <button id="btn-restart-modal" class="btn btn-primary">새 게임 시작</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sidebar / Control Panel -->
+            <aside class="sidebar-section">
+                <!-- Status Card -->
+                <div class="card glass-card status-card">
+                    <div class="turn-indicator-wrapper">
+                        <div id="turn-badge" class="turn-badge black-turn">
+                            <span class="stone-preview black-stone"></span>
+                            <span id="turn-text">흑돌 (선공) 턴</span>
+                        </div>
+                    </div>
+                    <div class="score-board">
+                        <div class="score-item black-score">
+                            <span class="player-name">흑돌 (Black)</span>
+                            <span id="score-black" class="score-val">0</span>
+                        </div>
+                        <div class="score-divider">:</div>
+                        <div class="score-item white-score">
+                            <span class="player-name">백돌 (White)</span>
+                            <span id="score-white" class="score-val">0</span>
+                        </div>
+                    </div>
+                    <div id="status-msg" class="status-msg">게임 진행 중...</div>
+                </div>
+
+                <!-- Game Mode Card -->
+                <div class="card glass-card mode-card">
+                    <h3>🎮 게임 모드 선택</h3>
+                    <div class="mode-buttons">
+                        <button id="btn-mode-ai" class="btn btn-mode active" data-mode="ai">
+                            <span class="icon">🤖</span> AI 대국
+                        </button>
+                        <button id="btn-mode-local" class="btn btn-mode" data-mode="local">
+                            <span class="icon">👥</span> 로컬 2P
+                        </button>
+                        <button id="btn-mode-online" class="btn btn-mode" data-mode="online">
+                            <span class="icon">🌐</span> 온라인 방
+                        </button>
+                    </div>
+
+                    <!-- AI Settings -->
+                    <div id="ai-settings" class="mode-settings">
+                        <label for="ai-difficulty">AI 난이도</label>
+                        <select id="ai-difficulty" class="select-input">
+                            <option value="easy">초급 (Easy)</option>
+                            <option value="medium" selected>중급 (Medium)</option>
+                            <option value="hard">고급 (Hard - Minimax)</option>
+                        </select>
+                    </div>
+
+                    <!-- Online Room Settings -->
+                    <div id="online-settings" class="mode-settings hidden">
+                        <div class="room-controls">
+                            <button id="btn-create-room" class="btn btn-secondary">방 생성</button>
+                            <div class="join-box">
+                                <input type="text" id="input-room-code" placeholder="방 코드 (예: X7K2P)" maxlength="6">
+                                <button id="btn-join-room" class="btn btn-secondary">참가</button>
+                            </div>
+                        </div>
+                        <div id="room-info" class="room-info hidden">
+                            <span>방 코드: <strong id="current-room-code">-</strong></span>
+                            <button id="btn-copy-code" class="btn-xs">복사</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Controls Card -->
+                <div class="card glass-card action-card">
+                    <div class="action-buttons">
+                        <button id="btn-new-game" class="btn btn-primary">
+                            <span class="icon">🔄</span> 새 게임
+                        </button>
+                        <button id="btn-undo" class="btn btn-secondary">
+                            <span class="icon">↩️</span> 무르기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat / Log Box (Online mode) -->
+                <div id="chat-section" class="card glass-card chat-card hidden">
+                    <h3>💬 실시간 대화</h3>
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input-box">
+                        <input type="text" id="input-chat" placeholder="메시지 입력..." maxlength="100">
+                        <button id="btn-send-chat" class="btn-xs">전송</button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="/static/js/audio.js"></script>
+    <script src="/static/js/board.js"></script>
+    <script src="/static/js/websocket.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
