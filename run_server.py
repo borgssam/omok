@@ -10,7 +10,7 @@ def main():
         python_executable = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
         python_executable = os.path.join(venv_dir, "bin", "python")
-
+    # 1234567890
     # Create virtual environment if it doesn't exist
     if not os.path.exists(python_executable):
         print(f"Creating virtual environment in {venv_dir}...")
